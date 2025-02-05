@@ -14,12 +14,12 @@ app.use(express.json());
 app.use(cors()); // Enable CORS for cross-origin requests
 
 // Route to interact with Ollama
-app.post("/api/generate", async (req: any, res: any) => {
+app.post("/generate", async (req: any, res: any) => {
   try {
     const { prompt } = req.body;
 
     if (!prompt) {
-      return res.status(400).json({ error: "Model and prompt are required" });
+      return res.status(400).json({ error: "prompt is required" });
     }
 
     const ollamaResponse = await axios.post(`${OLLAMA_HOST}/api/generate`, {
