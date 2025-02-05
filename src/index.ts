@@ -22,12 +22,24 @@ app.post("/generate", async (req: any, res: any) => {
       return res.status(400).json({ error: "prompt is required" });
     }
 
-    const ollamaResponse = await axios.post(`${OLLAMA_HOST}/api/generate`, {
-      MODEL,
-      prompt,
+    const response = await axios.post(
+      `${OLLAMA_HOST}/api/generate`,
+      { model: MODEL, prompt, stream: true }, // Corrected model key and added stream: true
+      { responseType: "stream" }
+    );
+
+    // Set headers to enable streaming
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    // Pipe the response chunk-by-chunk to the client
+    response.data.on("data", (chunk: Buffer) => {
+      res.write(chunk.toString());
     });
 
-    res.json(ollamaResponse.data);
+    // End response when Ollama finishes
+    response.data.on("end", () => res.end());
   } catch (error) {
     console.error("Error communicating with Ollama:", error);
     res.status(500).json({ error: "Failed to get response from Ollama" });
