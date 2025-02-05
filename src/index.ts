@@ -8,6 +8,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const OLLAMA_HOST = process.env.OLLAMA_HOST || "http://127.0.0.1:11434";
+const MODEL = process.env.MODEL || "deepseek-r1:1.5b";
 
 app.use(express.json());
 app.use(cors()); // Enable CORS for cross-origin requests
@@ -15,14 +16,14 @@ app.use(cors()); // Enable CORS for cross-origin requests
 // Route to interact with Ollama
 app.post("/api/generate", async (req: any, res: any) => {
   try {
-    const { model, prompt } = req.body;
+    const { prompt } = req.body;
 
-    if (!model || !prompt) {
+    if (!prompt) {
       return res.status(400).json({ error: "Model and prompt are required" });
     }
 
     const ollamaResponse = await axios.post(`${OLLAMA_HOST}/api/generate`, {
-      model,
+      MODEL,
       prompt,
     });
 
